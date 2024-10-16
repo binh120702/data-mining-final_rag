@@ -16,6 +16,7 @@ This is the demo UI for our RAG project
   - "set OPENAI_API_KEY=sk-..." for Windows
   - "export OPENAI_API_KEY=sk-..." for Linux/Mac
 - Run the streamlit using: ` streamlit run home.py `
+- Then you will be able to upload documents and ask some questions.
 
 
 ![demo image](imgs/demo.png "A sample chat screen")
