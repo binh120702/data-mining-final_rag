@@ -15,6 +15,7 @@ This is the demo UI for our RAG project
 - Set Open AI key as environment variable: 
   - "set OPENAI_API_KEY=sk-..." for Windows
   - "export OPENAI_API_KEY=sk-..." for Linux/Mac
+- Start the opensearch by running: `docker-compose up -d`
 - Run the streamlit using: ` streamlit run home.py `
 - Then you will be able to upload documents and ask some questions.
 
