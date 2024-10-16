@@ -80,10 +80,11 @@ def side_bar():
             st.session_state["handler"].new_conversation()
             display_existing_messages_and_return_context()
         st.header('**Add documents**', divider='rainbow')
-        uploaded_file = st.file_uploader("Choose a file")
+        uploaded_file = st.file_uploader("Choose a file", accept_multiple_files=True)
         if st.button("Add documents") and uploaded_file is not None:
             with st.spinner('Wait for it...'):
-                st.session_state["handler"].add_documents([uploaded_file])
+                chunk_size, time_processed = st.session_state["handler"].add_documents(uploaded_file)
+                st.write(f"Insert {chunk_size} chunks to vector store in {time_processed} seconds")
         
     
 if __name__ == "__main__":

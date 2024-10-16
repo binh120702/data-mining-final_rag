@@ -12,16 +12,19 @@ from llama_index.vector_stores.opensearch import (
     OpensearchVectorStore,
     OpensearchVectorClient,
 )
+from llama_index.core import Document
+from llama_index.core.node_parser import SentenceSplitter
 from temp_dir import TempDir
+from time import time
 
 class ChatHandler:
-    def __init__(self):
+    def __init__(self, index_name="data-mining-embeddings"):
         llm = OpenAI(model = "gpt-4o-mini")
         embed_model = OpenAIEmbedding(moedl = "text-embedding-3-small")
         Settings.embed_model = embed_model
         Settings.llm = llm
 
-        self.vector_store = OpensearchVectorStore(self.default_opensearch())
+        self.vector_store = OpensearchVectorStore(self.default_opensearch(index_name))
         self.index = VectorStoreIndex.from_vector_store(
             vector_store=self.vector_store
         )
@@ -34,19 +37,32 @@ class ChatHandler:
             memory=self.memory,
             llm=llm,
         )
+    
+    def add_text(self, text):
+        docs = [Document(text=text)]
+        node_parser = SentenceSplitter(chunk_size=512, chunk_overlap=50)
+        docs = node_parser.get_nodes_from_documents(docs)
+        self.index.insert_nodes(docs)
+        return len(docs)
         
     def add_documents(self, uploaded_files):
+        start_time = time()
         file_dict = {file.name: file.getvalue() for file in uploaded_files}
+        docs = []
         with TempDir(file_dict) as tempdir:
             reader = SimpleDirectoryReader(input_dir=tempdir)
             docs = reader.load_data()
-            print(docs)
-            self.index.refresh(docs)
+            node_parser = SentenceSplitter(chunk_size=512, chunk_overlap=50)
+            docs = node_parser.get_nodes_from_documents(docs)
+            self.index.insert_nodes(docs)
+        print(docs)
+        print(len(docs))
+        return len(docs), time() - start_time
         
-    def default_opensearch(self):
+    def default_opensearch(self, index_name):
         return OpensearchVectorClient(
             endpoint="http://localhost:9200",
-            index="data-mining-embeddings",
+            index=index_name,
             dim=1536,
         )
         
